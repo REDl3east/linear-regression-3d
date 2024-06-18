@@ -102,26 +102,26 @@ int main(int, char**) {
         y_data.push_back(current_y);
         z_data.push_back(collision.point.z);
 
-        if (x_data.size() > 1) {
+        if (x_data.size() > 2) {
           std::vector<std::size_t> shape = {1, x_data.size()};
           auto x_tensor                  = xt::transpose(xt::concatenate(xt::xtuple(xt::ones<double>(shape), xt::adapt(x_data, shape), xt::adapt(z_data, shape))));
           auto y_tensor                  = xt::transpose(xt::adapt(y_data, shape));
           auto xtranspos_x               = xt::linalg::dot(xt::transpose(x_tensor), x_tensor);
+          std::cout << xtranspos_x << '\n';
           auto xtranspose_x_inv          = xt::linalg::inv(xtranspos_x);
           auto xtranspos_y               = xt::linalg::dot(xt::transpose(x_tensor), y_tensor);
           auto a                         = xt::linalg::dot(xtranspose_x_inv, xtranspos_y);
 
-          std::cout << a << '\n';
 
-          float alpha = a(0, 0);
-          std::cout << alpha << '\n';
-          float x1 = a(1, 0);
+          // float alpha = a(0, 0);
+          // std::cout << alpha << '\n';
+          // float x1 = a(1, 0);
           // float x2 = a(2, 0);
 
-          // p1 = a(0, 0) + GRID_SIZE * a(0, 1) + GRID_SIZE * a(0, 2);
-          // p2 = a(0, 0) + GRID_SIZE * a(0, 1) + -GRID_SIZE * a(0, 2);
-          // p3 = a(0, 0) + -GRID_SIZE * a(0, 1) + -GRID_SIZE * a(0, 2);
-          // p4 = a(0, 0) + -GRID_SIZE * a(0, 1) + GRID_SIZE * a(0, 2);
+          p1 = a(0, 0) + GRID_SIZE * a(1, 0) + GRID_SIZE * a(2, 0);
+          p2 = a(0, 0) + GRID_SIZE * a(1, 0) + -GRID_SIZE * a(2, 0);
+          p3 = a(0, 0) + -GRID_SIZE * a(1, 0) + -GRID_SIZE * a(2, 0);
+          p4 = a(0, 0) + -GRID_SIZE * a(1, 0) + GRID_SIZE * a(2, 0);
 
           UnloadModel(plane_model);
           plane_mesh  = GenMeshCustomPlane(p1, p2, p3, p4);
