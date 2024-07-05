@@ -2,19 +2,14 @@
 #include <string>
 #include <vector>
 
-#include "xtensor-blas/xlinalg.hpp"
-#include "xtensor/xadapt.hpp"
-#include "xtensor/xio.hpp"
-#include "xtensor/xmath.hpp"
-#include "xtensor/xtensor.hpp"
-#define PI xt::numeric_constants<double>::PI
-
 #include "raylib.h"
 #include "raymath.h"
 #include "rcamera.h"
 
-#define WIDTH  (((float)1920 / 1.5))
-#define HEIGHT (((float)1080 / 1.5))
+#include "linear-regression.h"
+
+#define WIDTH  (((float)1920))
+#define HEIGHT (((float)1080))
 
 #define GRID_SIZE                     32
 #define CAMERA_ROTATION_SPEED         0.03f
@@ -38,14 +33,12 @@ void CustomUpdateCamera(Camera* camera) {
 }
 
 int main(int, char**) {
-  std::vector<float> x_data;
-  std::vector<float> y_data;
-  std::vector<float> z_data;
+  TwoVariableLinearRegression lr;
   float p1, p2, p3, p4;
 
   // Initialization
-  const int screenWidth  = 800;
-  const int screenHeight = 450;
+  const int screenWidth  = WIDTH;
+  const int screenHeight = HEIGHT;
 
   InitWindow(screenWidth, screenHeight, "Linear Regression 3D");
 
@@ -97,40 +90,22 @@ int main(int, char**) {
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
       if (collision.hit) {
         TraceLog(LOG_INFO, "%f %f %f", collision.point.x, current_y, collision.point.z);
+        lr.push(collision.point.x, collision.point.z, current_y);
 
-        x_data.push_back(collision.point.x);
-        y_data.push_back(current_y);
-        z_data.push_back(collision.point.z);
+        auto [b0, b1, b2] = lr.solve();
 
-        if (x_data.size() > 2) {
-          std::vector<std::size_t> shape = {1, x_data.size()};
-          auto x_tensor                  = xt::transpose(xt::concatenate(xt::xtuple(xt::ones<double>(shape), xt::adapt(x_data, shape), xt::adapt(z_data, shape))));
-          auto y_tensor                  = xt::transpose(xt::adapt(y_data, shape));
-          auto xtranspos_x               = xt::linalg::dot(xt::transpose(x_tensor), x_tensor);
-          std::cout << xtranspos_x << '\n';
-          auto xtranspose_x_inv          = xt::linalg::inv(xtranspos_x);
-          auto xtranspos_y               = xt::linalg::dot(xt::transpose(x_tensor), y_tensor);
-          auto a                         = xt::linalg::dot(xtranspose_x_inv, xtranspos_y);
+        p1 = b0 + GRID_SIZE * b1 + GRID_SIZE * b2;
+        p2 = b0 + GRID_SIZE * b1 + -GRID_SIZE * b2;
+        p3 = b0 + -GRID_SIZE * b1 + -GRID_SIZE * b2;
+        p4 = b0 + -GRID_SIZE * b1 + GRID_SIZE * b2;
 
-
-          // float alpha = a(0, 0);
-          // std::cout << alpha << '\n';
-          // float x1 = a(1, 0);
-          // float x2 = a(2, 0);
-
-          p1 = a(0, 0) + GRID_SIZE * a(1, 0) + GRID_SIZE * a(2, 0);
-          p2 = a(0, 0) + GRID_SIZE * a(1, 0) + -GRID_SIZE * a(2, 0);
-          p3 = a(0, 0) + -GRID_SIZE * a(1, 0) + -GRID_SIZE * a(2, 0);
-          p4 = a(0, 0) + -GRID_SIZE * a(1, 0) + GRID_SIZE * a(2, 0);
-
-          UnloadModel(plane_model);
-          plane_mesh  = GenMeshCustomPlane(p1, p2, p3, p4);
-          plane_model = LoadModelFromMesh(plane_mesh);
-        }
+        UnloadModel(plane_model);
+        plane_mesh  = GenMeshCustomPlane(p1, p2, p3, p4);
+        plane_model = LoadModelFromMesh(plane_mesh);
       }
     }
-    for (int i = 0; i < x_data.size(); i++) {
-      Vector3 v = {x_data[i], y_data[i], z_data[i]};
+    for (int i = 0; i < lr.size(); i++) {
+      Vector3 v = {(float)lr.get()[i][0], (float)lr.get()[i][2], (float)lr.get()[i][1]};
       DrawSphere(v, 0.5, RED);
     }
     DrawGrid(GRID_SIZE, 1.0f);
