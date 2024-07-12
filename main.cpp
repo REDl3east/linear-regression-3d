@@ -75,6 +75,10 @@ int main(int, char**) {
       current_y -= 0.25;
     }
 
+    if (IsKeyPressed(KEY_R)) {
+      camera.target = (Vector3){0.0f, 0.0f, 0.0f}; // Camera looking at point
+    }
+
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
@@ -98,7 +102,6 @@ int main(int, char**) {
         p2 = b0 + GRID_SIZE * b1 + -GRID_SIZE * b2;
         p3 = b0 + -GRID_SIZE * b1 + -GRID_SIZE * b2;
         p4 = b0 + -GRID_SIZE * b1 + GRID_SIZE * b2;
-
 
         UnloadModel(plane_model);
         plane_mesh  = GenMeshCustomPlane(p1, p2, p3, p4);

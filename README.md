@@ -13,6 +13,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 ### Controls
 WASD to fly around  
 Mouse to look with the camera  
+Press R to look at (0, 0, 0)
 Left click grid to place a point  
 Scroll Wheel to raise/lower point  
 
