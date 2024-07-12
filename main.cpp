@@ -82,6 +82,10 @@ int main(int, char**) {
       current_y -= 0.25;
     }
 
+    if (IsKeyPressed(KEY_S)) {
+      TakeScreenshot("screenshot.png");
+    }
+
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
@@ -108,10 +112,9 @@ int main(int, char**) {
           auto y_tensor                  = xt::transpose(xt::adapt(y_data, shape));
           auto xtranspos_x               = xt::linalg::dot(xt::transpose(x_tensor), x_tensor);
           std::cout << xtranspos_x << '\n';
-          auto xtranspose_x_inv          = xt::linalg::inv(xtranspos_x);
-          auto xtranspos_y               = xt::linalg::dot(xt::transpose(x_tensor), y_tensor);
-          auto a                         = xt::linalg::dot(xtranspose_x_inv, xtranspos_y);
-
+          auto xtranspose_x_inv = xt::linalg::inv(xtranspos_x);
+          auto xtranspos_y      = xt::linalg::dot(xt::transpose(x_tensor), y_tensor);
+          auto a                = xt::linalg::dot(xtranspose_x_inv, xtranspos_y);
 
           // float alpha = a(0, 0);
           // std::cout << alpha << '\n';
