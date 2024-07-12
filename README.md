@@ -1,6 +1,8 @@
 # Linear Regression 3D
 A visualization of Linear Regression with two input variables. Uses Raylib :)
 
+![alt text](./assets/screenshot.png "Title")
+
 ### Quick Start
 ```bash
 mkdir build

@@ -8,8 +8,8 @@
 
 #include "linear-regression.h"
 
-#define WIDTH  (((float)1920))
-#define HEIGHT (((float)1080))
+#define WIDTH  (((float)1920 * 0.75f))
+#define HEIGHT (((float)1080 * 0.75f))
 
 #define GRID_SIZE                     32
 #define CAMERA_ROTATION_SPEED         0.03f
@@ -73,10 +73,6 @@ int main(int, char**) {
     }
     if (GetMouseWheelMoveV().y < 0) {
       current_y -= 0.25;
-    }
-
-    if (IsKeyPressed(KEY_S)) {
-      TakeScreenshot("screenshot.png");
     }
 
     BeginDrawing();
